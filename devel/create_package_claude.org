@@ -1,0 +1,73 @@
+* Create recycle package
+** develop core functionality in R package
+Purpose: develop proto type code provided in R functions into a package called recycle.
+
+*** Main functionality
+The objective of the recycle package is to check function arguments for whether a rerun of the function is necessary, or stored results can be reused. The interface function should be 
+
+#+begin_src R
+recycle(myfun,args,env,path.res,funs.unwrap)
+#+end_src
+
+`funs.unwrap` must be replaced or accompanied by an interface that also allows for provided file paths to be read, or as provided in custom functions. Not sure `funs.unwrap` is necesary, or an arg could specify that functions must be handled the way funs.unwrap specifies for now.
+
+*** Handling the environment or `env`
+I am not sure the best way to handle this. Maybe, to begin with, the most robust way is to pass the environment, manually to recycle(). The solution must work from an interactive environment, as well as within packages, like pkg2::fun2(recycle=TRUE) should allow fun2 to use recycle() internally.
+
+
+** additional code
+#+begin_src R
+
+  ########## example
+  ## this example is a function that attempts to "recycle". The interface recycle() should be simpler.
+  
+if(F){
+  ##### myfun3 is a function that internally makes use of needRun2. It
+
+  ## the big q is how we handle functions from within packages
+
+  myfun3 <- function(x,path.res){
+    ## not sure this is quite enough. I just put in getArgs() because I think we can use that somehow.
+    obj <- getArgs()
+    ### fnExtension doesn't matter as long as we use readRDS to read results. 
+    path.digs <- fnExtension(fnAppend(path.res,"digests"),".rds")
+
+    ### env should just be the myfun3 environment. How do I get that?
+    must.run <- needRun2(obj,env=,path.digs=path.digs)
+    if(must.run){
+      res <- x+3
+      ## if new digests were provided by needRun2, use those. Otherwise recalc
+      if(!is.null(must.run$digest)){
+        digs.new <- must.run$digest
+      } else {
+        digs.new <- digestElements(obj,env=,funs=funs.unwrap)
+      }
+      saveRDS(res,path.res)
+      saveRDS(digs.new,path.digs)
+
+      return(res)
+    } else {
+      readRDS(path.res)
+    }
+
+    res
+  }
+
+  ##### would be even better if we could do
+  ## res <- recycle(myfun,args,env,path.res,funs.unwrap)
+
+  
+}
+
+#+end_src
+
+** Querries
+Ask:
+Are there solutions available already that can do this?
+
+edit: Create DESCRIPTION and other R package necessities
+
+edit: create tests with the recycle() function as explained
+
+agent: develop R functions in recycle package, restructured and renamed appropriately. Run tests of recycle, and iterate functions and test to success. 
+
