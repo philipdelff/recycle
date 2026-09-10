@@ -11,8 +11,12 @@ recycle(myfun,args,env,path.res,funs.unwrap)
 
 `funs.unwrap` must be replaced or accompanied by an interface that also allows for provided file paths to be read, or as provided in custom functions. Not sure `funs.unwrap` is necesary, or an arg could specify that functions must be handled the way funs.unwrap specifies for now.
 
+Also, add an argument to recycle() to specify an rds file to read/store digests to compare against. Then recycle should not use the path.res argument in `myfun3()`.
+
+Functions  needrun and needrun2 are both defined. I _think_ needRun2 is a better/simpler implementation.
+
 *** Handling the environment or `env`
-I am not sure the best way to handle this. Maybe, to begin with, the most robust way is to pass the environment, manually to recycle(). The solution must work from an interactive environment, as well as within packages, like pkg2::fun2(recycle=TRUE) should allow fun2 to use recycle() internally.
+I am not sure the best way to handle this. Maybe, to begin with, the most robust way is to pass the environment, manually to recycle(). The solution must work from an interactive environment, as well as within packages, like pkg2::fun2(recycle=TRUE) should allow fun2 to use recycle() internally. 
 
 
 ** additional code
@@ -67,7 +71,8 @@ Are there solutions available already that can do this?
 
 edit: Create DESCRIPTION and other R package necessities
 
-edit: create tests with the recycle() function as explained
-
-agent: develop R functions in recycle package, restructured and renamed appropriately. Run tests of recycle, and iterate functions and test to success. 
+agent:
+- create tests with the recycle() function as explained
+- develop R functions in recycle package, restructured and renamed appropriately. Store the R functions as separate new files in R/.
+- Run tests of recycle, and iterate functions and test to success. 
 
