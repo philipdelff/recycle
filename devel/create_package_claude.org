@@ -69,6 +69,12 @@ if(F){
 Ask:
 Are there solutions available already that can do this?
 
+I need funs.unwrap because my argument values are often functions, and they must be compared by code without environment (which would break comparison). Can some of the other packages do this? Can they generally apply a function to some arguments (e.g. read file contents instead of path)?
+
+can I include named columns in hash to be treated differently? Like if(x%in%c("myfile","myfile2") then read before digest?
+
+If so, my need is maybe just a function to generate that repalacement for hash_fun_by_code that distinguishes. 
+
 edit: Create DESCRIPTION and other R package necessities
 
 agent:
