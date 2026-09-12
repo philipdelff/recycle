@@ -7,6 +7,15 @@
 \description{
 Provides intelligent caching of function results by comparing function arguments using customizable comparison logic. Supports comparing functions by code (ignoring environments), reading file contents instead of comparing paths, and other flexible argument transformations before determining if a re-run is necessary.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://philipdelff.github.io/recycle/}
+  \item \url{https://github.com/philipdelff/recycle}
+  \item Report bugs at \url{https://github.com/philipdelff/recycle/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Philip Delff \email{philip@delff.dk}
 

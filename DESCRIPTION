@@ -11,6 +11,8 @@ Description: Provides intelligent caching of function results by comparing
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
+URL: https://philipdelff.github.io/recycle/, https://github.com/philipdelff/recycle
+BugReports: https://github.com/philipdelff/recycle/issues
 Imports:
     digest,
     data.table

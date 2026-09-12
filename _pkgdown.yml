@@ -1,0 +1,22 @@
+url: https://philipdelff.github.io/recycle/
+template:
+  bootstrap: 5
+
+reference:
+- title: Main function
+  desc: Core caching functionality
+  contents:
+  - recycle
+
+- title: Internal functions
+  desc: Helper functions (not typically called directly)
+  contents:
+  - check_need_run
+  - digest_elements
+  - process_args_unwrap
+
+articles:
+- title: Getting Started
+  navbar: ~
+  contents:
+  - recycle-intro

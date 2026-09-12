@@ -14,12 +14,16 @@ Smart caching of function results with custom argument comparison.
 ## Installation
 
 ```r
-# Install from GitHub (once available)
-# devtools::install_github("yourusername/recycle")
+# Install from GitHub
+# devtools::install_github("philipdelff/recycle")
 
 # For now, install locally
 devtools::install()
 ```
+
+## Documentation
+
+Full documentation and vignettes are available at: **https://philipdelff.github.io/recycle/**
 
 ## Quick Start
 
