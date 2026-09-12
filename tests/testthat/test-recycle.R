@@ -27,6 +27,99 @@ test_that("recycle works with simple function", {
   unlink(cache_dir, recursive = TRUE)
 })
 
+test_that("recycle works with custom read function", {
+  cache_dir <- tempfile()
+  dir.create(cache_dir)
+  
+  # Create a function that saves to CSV
+  save_csv <- function(data, path) {
+    write.csv(data, path, row.names = FALSE)
+    return(data)
+  }
+  
+  path_res <- file.path(cache_dir, "result.csv")
+  
+  # First run - function saves its own results
+  test_data <- data.frame(x = 1:3, y = 4:6)
+  result1 <- recycle(save_csv,
+                     list(data = test_data, path = path_res),
+                     path.res = path_res,
+                     fun.read = function(p) read.csv(p),
+                     save.res = FALSE)
+  expect_equal(result1, test_data)
+  expect_true(file.exists(path_res))
+  
+  # Second run - should use cache and custom read function
+  result2 <- recycle(save_csv,
+                     list(data = test_data, path = path_res),
+                     path.res = path_res,
+                     fun.read = function(p) read.csv(p),
+                     save.res = FALSE)
+  expect_equal(result2, test_data)
+  
+  # Different data - should re-run
+  test_data2 <- data.frame(x = 7:9, y = 10:12)
+  result3 <- recycle(save_csv,
+                     list(data = test_data2, path = path_res),
+                     path.res = path_res,
+                     fun.read = function(p) read.csv(p),
+                     save.res = FALSE)
+  expect_equal(result3, test_data2)
+  
+  # Cleanup
+  unlink(cache_dir, recursive = TRUE)
+})
+
+test_that("recycle save.res=FALSE skips saving results", {
+  cache_dir <- tempfile()
+  dir.create(cache_dir)
+  
+  # Function that saves to a text file
+  save_text <- function(text, path) {
+    writeLines(text, path)
+    return(text)
+  }
+  
+  path_res <- file.path(cache_dir, "result.txt")
+  
+  # First run
+  result1 <- recycle(save_text,
+                     list(text = "hello world", path = path_res),
+                     path.res = path_res,
+                     fun.read = function(p) readLines(p, warn = FALSE),
+                     save.res = FALSE)
+  expect_equal(result1, "hello world")
+  
+  # Verify it's a text file, not RDS
+  content <- readLines(path_res, warn = FALSE)
+  expect_equal(content, "hello world")
+  
+  # Should not be an RDS file
+  expect_error(readRDS(path_res), "unknown input format")
+  
+  # Cleanup
+  unlink(cache_dir, recursive = TRUE)
+})
+
+test_that("recycle default behavior saves with saveRDS", {
+  cache_dir <- tempfile()
+  dir.create(cache_dir)
+  
+  add_fun <- function(x, y) x + y
+  path_res <- file.path(cache_dir, "result.rds")
+  
+  # First run - default save.res=TRUE
+  result1 <- recycle(add_fun, list(x = 1, y = 2), path.res = path_res)
+  expect_equal(result1, 3)
+  
+  # Verify it's an RDS file
+  result_from_file <- readRDS(path_res)
+  expect_equal(result_from_file, 3)
+  
+  # Cleanup
+  unlink(cache_dir, recursive = TRUE)
+})
+
 test_that("recycle works with file.args", {
   cache_dir <- tempfile()
   dir.create(cache_dir)
@@ -47,14 +140,14 @@ test_that("recycle works with file.args", {
   result1 <- recycle(read_fun, 
                      list(file = test_file, multiplier = 2),
                      path.res = path_res,
-                     file.args = "file")
+                     args.unwrap = list(file = function(x) readLines(x, warn = FALSE)))
   expect_equal(result1, 4)
   
   # Same file, same args - should use cache
   result2 <- recycle(read_fun,
                      list(file = test_file, multiplier = 2),
                      path.res = path_res,
-                     file.args = "file")
+                     args.unwrap = list(file = function(x) readLines(x, warn = FALSE)))
   expect_equal(result2, 4)
   
   # Modify file contents - should re-run
@@ -62,7 +155,7 @@ test_that("recycle works with file.args", {
   result3 <- recycle(read_fun,
                      list(file = test_file, multiplier = 2),
                      path.res = path_res,
-                     file.args = "file")
+                     args.unwrap = list(file = function(x) readLines(x, warn = FALSE)))
   expect_equal(result3, 6)
   
   # Cleanup
@@ -86,9 +179,7 @@ test_that("recycle works with function arguments", {
   result1 <- recycle(apply_fun,
                      list(x = 5, transform = transform1),
                      path.res = path_res,
-                     funs.unwrap = list(
-                       transform = function(f) list(body(f), formals(f))
-                     ))
+                     args.unwrap = list(transform = "function"))
   expect_equal(result1, 10)
   
   # Same function code - should use cache
@@ -96,9 +187,7 @@ test_that("recycle works with function arguments", {
   result2 <- recycle(apply_fun,
                      list(x = 5, transform = transform2),
                      path.res = path_res,
-                     funs.unwrap = list(
-                       transform = function(f) list(body(f), formals(f))
-                     ))
+                     args.unwrap = list(transform = "function"))
   expect_equal(result2, 10)
   
   # Different function code - should re-run
@@ -106,9 +195,7 @@ test_that("recycle works with function arguments", {
   result3 <- recycle(apply_fun,
                      list(x = 5, transform = transform3),
                      path.res = path_res,
-                     funs.unwrap = list(
-                       transform = function(f) list(body(f), formals(f))
-                     ))
+                     args.unwrap = list(transform = "function"))
   expect_equal(result3, 15)
   
   # Cleanup
@@ -194,4 +281,40 @@ test_that("recycle creates directories if needed", {
   
   # Cleanup
   unlink(file.path(tempdir(), "deep"), recursive = TRUE)
+})
+
+test_that("recycle auto-detects function arguments without explicit args.unwrap", {
+  cache_dir <- tempfile()
+  dir.create(cache_dir)
+  
+  # Function that takes another function as argument
+  apply_fun <- function(x, transform) {
+    transform(x)
+  }
+  
+  path_res <- file.path(cache_dir, "result.rds")
+  
+  # First run - no args.unwrap specified, should auto-detect
+  transform1 <- function(x) x * 2
+  result1 <- recycle(apply_fun,
+                     list(x = 5, transform = transform1),
+                     path.res = path_res)
+  expect_equal(result1, 10)
+  
+  # Same function code - should use cache (auto-detection working)
+  transform2 <- function(x) x * 2
+  result2 <- recycle(apply_fun,
+                     list(x = 5, transform = transform2),
+                     path.res = path_res)
+  expect_equal(result2, 10)
+  
+  # Different function code - should re-run
+  transform3 <- function(x) x * 3
+  result3 <- recycle(apply_fun,
+                     list(x = 5, transform = transform3),
+                     path.res = path_res)
+  expect_equal(result3, 15)
+  
+  # Cleanup
+  unlink(cache_dir, recursive = TRUE)
 })

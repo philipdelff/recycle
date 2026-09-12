@@ -82,3 +82,10 @@ agent:
 - develop R functions in recycle package, restructured and renamed appropriately. Store the R functions as separate new files in R/.
 - Run tests of recycle, and iterate functions and test to success. 
 
+I want one common interface for "unwrapping" arguments. args.unwrap=list(arg1="function",arg2=fread) )
+Notice, "function" is a keyword to do the function unwrapping.
+
+Also, "function" should be default if the value of the argument is a function.
+
+
+some function, funwrite(), to be run within recycle() saves results already. recycle() must be able to 1) skip saving the results, ana 2) read the results from the specified output path. The output data could be saved in any format, so the user must have the option to specify a custom function to use for reading results.

@@ -3,3 +3,7 @@
 ^devel$
 ^\.git$
 ^\.gitignore$
+^README\.md$
+^doc$
+^Meta$
+^\.aider
