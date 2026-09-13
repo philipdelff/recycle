@@ -6,7 +6,7 @@ function needs to be re-executed.
 ## Usage
 
 ``` r
-check_need_run(args, path.res, path.digest, funs.unwrap, force)
+check_need_run(args, path.res, path.digest, funs.unwrap, force, quiet = FALSE)
 ```
 
 ## Arguments
@@ -30,6 +30,10 @@ check_need_run(args, path.res, path.digest, funs.unwrap, force)
 - force:
 
   Logical, if TRUE always return that run is needed
+
+- quiet:
+
+  Logical, if FALSE prints messages about what changed
 
 ## Value
 

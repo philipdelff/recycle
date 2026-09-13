@@ -16,7 +16,8 @@ recycle(
   args.unwrap = NULL,
   fun.read = NULL,
   save.res = TRUE,
-  force = FALSE
+  force = FALSE,
+  quiet = FALSE
 )
 ```
 
@@ -66,6 +67,11 @@ recycle(
 
   Logical. If TRUE, always re-run the function regardless of cached
   results. Default is FALSE.
+
+- quiet:
+
+  Logical. If FALSE (default), prints messages about cache status and
+  what changed. If TRUE, runs silently.
 
 ## Value
 

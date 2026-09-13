@@ -59,7 +59,8 @@ file contents instead of comparing file paths.</p>
 <span>  args.unwrap <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  fun.read <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  save.res <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  force <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  force <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -107,6 +108,11 @@ Set to FALSE if `fun` saves its own results to `path.res`.</p></dd>
 <dt id="arg-force">force<a class="anchor" aria-label="anchor" href="#arg-force"></a></dt>
 <dd><p>Logical. If TRUE, always re-run the function regardless of cached results.
 Default is FALSE.</p></dd>
+
+
+<dt id="arg-quiet">quiet<a class="anchor" aria-label="anchor" href="#arg-quiet"></a></dt>
+<dd><p>Logical. If FALSE (default), prints messages about cache status and what changed.
+If TRUE, runs silently.</p></dd>
 
 </dl></div>
     <div class="section level2">
