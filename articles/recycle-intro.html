@@ -366,6 +366,88 @@ directories to <code>.gitignore</code></p></li>
 </ol>
 </div>
 <div class="section level2">
+<h2 id="real-world-example-nonmem-simulations-with-nmsim">Real-world Example: NONMEM Simulations with NMsim<a class="anchor" aria-label="anchor" href="#real-world-example-nonmem-simulations-with-nmsim"></a>
+</h2>
+<p>Here’s a practical example using <code>recycle</code> with
+<code>NMsim</code> for NONMEM simulations. This is particularly useful
+during model development when you’re iterating on simulations that can
+take minutes to run.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://nmautoverse.github.io/NMsim/" class="external-link">NMsim</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://philipdelff.github.io/recycle/">recycle</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Setup paths and configuration</span></span>
+<span><span class="va">file.mod</span> <span class="op">&lt;-</span> <span class="st">"~/wdirs/NMsim/inst/examples/nonmem/xgxr021.mod"</span></span>
+<span><span class="va">dir.res</span> <span class="op">&lt;-</span> <span class="st">"~/wdirs/NMsim/devel/needRun/res"</span></span>
+<span></span>
+<span><span class="co"># Create a multiple-dose simulation dataset with a loading dose</span></span>
+<span><span class="va">data.sim</span> <span class="op">&lt;-</span> <span class="fu">NMcreateDoses</span><span class="op">(</span>TIME <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">24</span><span class="op">)</span>, AMT <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">300</span>, <span class="fl">150</span><span class="op">)</span>, </span>
+<span>                          ADDL <span class="op">=</span> <span class="fl">5</span>, II <span class="op">=</span> <span class="fl">24</span>, CMT <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">NMaddSamples</span><span class="op">(</span>TIME <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="op">(</span><span class="fl">24</span><span class="op">*</span><span class="fl">7</span><span class="op">)</span>, CMT <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Define the results file path</span></span>
+<span><span class="va">file.res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir.res</span>, <span class="st">"xgxr021_noname_MetaData.rds"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># First run - executes simulation (may take several minutes)</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recycle.html">recycle</a></span><span class="op">(</span><span class="va">NMsim</span>,</span>
+<span>               args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>file.mod <span class="op">=</span> <span class="va">file.mod</span>,</span>
+<span>                          data <span class="op">=</span> <span class="va">data.sim</span>,</span>
+<span>                          table.vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PRED"</span>, <span class="st">"IPRED"</span>, <span class="st">"Y"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>               path.res <span class="op">=</span> <span class="va">file.res</span>,</span>
+<span>               fun.read <span class="op">=</span> <span class="va">NMreadSim</span>,</span>
+<span>               save.res <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Subsequent runs with same arguments - instant!</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recycle.html">recycle</a></span><span class="op">(</span><span class="va">NMsim</span>,</span>
+<span>               args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>file.mod <span class="op">=</span> <span class="va">file.mod</span>,</span>
+<span>                          data <span class="op">=</span> <span class="va">data.sim</span>,</span>
+<span>                          table.vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PRED"</span>, <span class="st">"IPRED"</span>, <span class="st">"Y"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>               path.res <span class="op">=</span> <span class="va">file.res</span>,</span>
+<span>               fun.read <span class="op">=</span> <span class="va">NMreadSim</span>,</span>
+<span>               save.res <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co"># Using cached results from: ~/wdirs/NMsim/devel/needRun/res/xgxr021_noname_MetaData.rds</span></span>
+<span></span>
+<span><span class="co"># Track changes to the model file</span></span>
+<span><span class="co"># If you edit the .mod file, recycle will detect it and re-run</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/recycle.html">recycle</a></span><span class="op">(</span><span class="va">NMsim</span>,</span>
+<span>               args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>file.mod <span class="op">=</span> <span class="va">file.mod</span>,</span>
+<span>                          data <span class="op">=</span> <span class="va">data.sim</span>,</span>
+<span>                          table.vars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PRED"</span>, <span class="st">"IPRED"</span>, <span class="st">"Y"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>               path.res <span class="op">=</span> <span class="va">file.res</span>,</span>
+<span>               fun.read <span class="op">=</span> <span class="va">NMreadSim</span>,</span>
+<span>               args.unwrap <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>file.mod <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/readLines.html" class="external-link">readLines</a></span><span class="op">(</span><span class="va">x</span>, warn <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>               save.res <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co"># If model file changed:</span></span>
+<span><span class="co"># Running function due to changes:</span></span>
+<span><span class="co">#   - 'file.mod': value changed</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="why-this-works-well">Why This Works Well<a class="anchor" aria-label="anchor" href="#why-this-works-well"></a>
+</h3>
+<ol style="list-style-type: decimal">
+<li>
+<strong>NMsim saves its own results</strong>: We use
+<code>save.res = FALSE</code> because <code>NMsim</code> creates its own
+output files</li>
+<li>
+<strong>Custom read function</strong>:
+<code>fun.read = NMreadSim</code> reads the NMsim-specific format</li>
+<li>
+<strong>Model file tracking</strong>: Using <code>args.unwrap</code>
+with <code>readLines</code> ensures changes to the model file trigger
+re-runs</li>
+<li>
+<strong>Data comparison</strong>: The <code>data.sim</code>
+data.frame is compared directly, so changes trigger re-runs</li>
+<li>
+<strong>Fast iteration</strong>: During model development, you can
+re-run your analysis script instantly if nothing changed</li>
+</ol>
+<p>This pattern works for any simulation or modeling tool that: - Takes
+time to run - Saves its own output files - Has arguments you want to
+track (model files, data, parameters)</p>
+</div>
+</div>
+<div class="section level2">
 <h2 id="conclusion">Conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>
 </h2>
 <p>The <code>recycle</code> package provides a flexible and powerful
