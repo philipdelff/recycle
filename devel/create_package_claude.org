@@ -89,3 +89,19 @@ Also, "function" should be default if the value of the argument is a function.
 
 
 some function, funwrite(), to be run within recycle() saves results already. recycle() must be able to 1) skip saving the results, ana 2) read the results from the specified output path. The output data could be saved in any format, so the user must have the option to specify a custom function to use for reading results.
+
+
+digest must include md5 of results file. If results file changed since last run, also rerun.
+
+include a "quiet" argument. If FALSE (default), message whether new run is being done and because of what digest changes. If new run not done, message what file is being read.
+
+there is something wrong with the md5 check. It keeps rerunning the code. I can see that the md5 sum stored in the digests file doesn't match the md5sum() of file.res. Digests is supposed to keep the md5 of the last result, so recycle know if the digests of the arguments match the result file stored.
+
+
+run check() and fix any issues. Never edit man .rd files, only edit rogy
+
+
+fix check() note: 
+ recycle: no visible binding for global variable ‘name’
+  Undefined global functions or variables:
+

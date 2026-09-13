@@ -12,7 +12,8 @@ recycle(
   args.unwrap = NULL,
   fun.read = NULL,
   save.res = TRUE,
-  force = FALSE
+  force = FALSE,
+  quiet = FALSE
 )
 }
 \arguments{
@@ -41,6 +42,9 @@ Set to FALSE if `fun` saves its own results to `path.res`.}
 
 \item{force}{Logical. If TRUE, always re-run the function regardless of cached results.
 Default is FALSE.}
+
+\item{quiet}{Logical. If FALSE (default), prints messages about cache status and what changed.
+If TRUE, runs silently.}
 }
 \value{
 The result of executing `fun` with `args`, either freshly computed or from cache

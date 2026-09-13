@@ -4,7 +4,7 @@
 \alias{check_need_run}
 \title{Check if function needs to be re-run based on argument changes}
 \usage{
-check_need_run(args, path.res, path.digest, funs.unwrap, force)
+check_need_run(args, path.res, path.digest, funs.unwrap, force, quiet = FALSE)
 }
 \arguments{
 \item{args}{Named list of arguments}
@@ -16,6 +16,8 @@ check_need_run(args, path.res, path.digest, funs.unwrap, force)
 \item{funs.unwrap}{Named list of functions to apply before digesting}
 
 \item{force}{Logical, if TRUE always return that run is needed}
+
+\item{quiet}{Logical, if FALSE prints messages about what changed}
 }
 \value{
 List with elements: run (logical), digest.new (data.table), digest.all (data.table or NULL)

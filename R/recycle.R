@@ -23,6 +23,8 @@
 ##'   Set to FALSE if `fun` saves its own results to `path.res`.
 ##' @param force Logical. If TRUE, always re-run the function regardless of cached results.
 ##'   Default is FALSE.
+##' @param quiet Logical. If FALSE (default), prints messages about cache status and what changed.
+##'   If TRUE, runs silently.
 ##' @return The result of executing `fun` with `args`, either freshly computed or from cache
 ##' @export
 ##' @examples
@@ -64,7 +66,11 @@
 ##' }
 recycle <- function(fun, args, path.res, path.digest = NULL, 
                     args.unwrap = NULL, fun.read = NULL, save.res = TRUE, 
-                    force = FALSE) {
+                    force = FALSE, quiet = FALSE) {
+  
+  #### Section start: Dummy variables, only not to get NOTE's in package checks ####
+  name <- NULL
+  #### Section end: Dummy variables, only not to get NOTE's in package checks ####
   
   # Validate inputs
   if (!is.function(fun)) {
@@ -100,7 +106,7 @@ recycle <- function(fun, args, path.res, path.digest = NULL,
   funs.unwrap <- process_args_unwrap(args.unwrap, args)
   
   # Check if we need to run
-  need_run <- check_need_run(args, path.res, path.digest, funs.unwrap, force)
+  need_run <- check_need_run(args, path.res, path.digest, funs.unwrap, force, quiet)
   
   if (need_run$run) {
     # Execute function
@@ -111,12 +117,26 @@ recycle <- function(fun, args, path.res, path.digest = NULL,
       saveRDS(result, path.res)
     }
     
-    # Always save digests
-    saveRDS(need_run$digest.new, path.digest)
+    # Update digest with MD5 of the newly saved results file
+    # Remove old .results_file_md5 if present
+    digest.to.save <- need_run$digest.new[name != ".results_file_md5"]
+    
+    # Add current MD5 of results file
+    res_file_md5 <- tools::md5sum(path.res)
+    digest.to.save <- rbind(
+      digest.to.save,
+      data.table(name = ".results_file_md5", res = as.character(res_file_md5))
+    )
+    
+    # Save digests
+    saveRDS(digest.to.save, path.digest)
     
     return(result)
   } else {
     # Return cached results using custom read function if provided
+    if (!quiet) {
+      message(sprintf("Using cached results from: %s", path.res))
+    }
     if (is.null(fun.read)) {
       return(readRDS(path.res))
     } else {

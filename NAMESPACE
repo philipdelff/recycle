@@ -3,3 +3,4 @@
 export(recycle)
 import(data.table)
 importFrom(digest,digest)
+importFrom(tools,md5sum)
