@@ -105,3 +105,7 @@ fix check() note:
  recycle: no visible binding for global variable ‘name’
   Undefined global functions or variables:
 
+
+revise readme and vignette with respect to recent improvements. I wrote an example with NMsim and recycle in devel/NMsim_recycle.R - please use the syntax I am using. If this is not covered in vignette, please do.
+
+I want the NMsim example in the vignette

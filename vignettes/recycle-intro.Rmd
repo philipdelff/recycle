@@ -302,6 +302,73 @@ result <- recycle(
 
 5. **Use version control wisely**: Add cache directories to `.gitignore`
 
+## Real-world Example: NONMEM Simulations with NMsim
+
+Here's a practical example using `recycle` with `NMsim` for NONMEM simulations. This is particularly useful during model development when you're iterating on simulations that can take minutes to run.
+
+```{r nmsim-example, eval=FALSE}
+library(NMsim)
+library(recycle)
+
+# Setup paths and configuration
+file.mod <- "~/wdirs/NMsim/inst/examples/nonmem/xgxr021.mod"
+dir.res <- "~/wdirs/NMsim/devel/needRun/res"
+
+# Create a multiple-dose simulation dataset with a loading dose
+data.sim <- NMcreateDoses(TIME = c(0, 24), AMT = c(300, 150), 
+                          ADDL = 5, II = 24, CMT = 1) |>
+  NMaddSamples(TIME = 0:(24*7), CMT = 2)
+
+# Define the results file path
+file.res <- file.path(dir.res, "xgxr021_noname_MetaData.rds")
+
+# First run - executes simulation (may take several minutes)
+res <- recycle(NMsim,
+               args = list(file.mod = file.mod,
+                          data = data.sim,
+                          table.vars = c("PRED", "IPRED", "Y")),
+               path.res = file.res,
+               fun.read = NMreadSim,
+               save.res = FALSE)
+
+# Subsequent runs with same arguments - instant!
+res <- recycle(NMsim,
+               args = list(file.mod = file.mod,
+                          data = data.sim,
+                          table.vars = c("PRED", "IPRED", "Y")),
+               path.res = file.res,
+               fun.read = NMreadSim,
+               save.res = FALSE)
+# Using cached results from: ~/wdirs/NMsim/devel/needRun/res/xgxr021_noname_MetaData.rds
+
+# Track changes to the model file
+# If you edit the .mod file, recycle will detect it and re-run
+res <- recycle(NMsim,
+               args = list(file.mod = file.mod,
+                          data = data.sim,
+                          table.vars = c("PRED", "IPRED", "Y")),
+               path.res = file.res,
+               fun.read = NMreadSim,
+               args.unwrap = list(file.mod = function(x) readLines(x, warn = FALSE)),
+               save.res = FALSE)
+# If model file changed:
+# Running function due to changes:
+#   - 'file.mod': value changed
+```
+
+### Why This Works Well
+
+1. **NMsim saves its own results**: We use `save.res = FALSE` because `NMsim` creates its own output files
+2. **Custom read function**: `fun.read = NMreadSim` reads the NMsim-specific format
+3. **Model file tracking**: Using `args.unwrap` with `readLines` ensures changes to the model file trigger re-runs
+4. **Data comparison**: The `data.sim` data.frame is compared directly, so changes trigger re-runs
+5. **Fast iteration**: During model development, you can re-run your analysis script instantly if nothing changed
+
+This pattern works for any simulation or modeling tool that:
+- Takes time to run
+- Saves its own output files
+- Has arguments you want to track (model files, data, parameters)
+
 ## Conclusion
 
 The `recycle` package provides a flexible and powerful caching solution that goes beyond simple memoization. Its key strengths are:
