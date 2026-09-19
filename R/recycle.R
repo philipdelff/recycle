@@ -125,7 +125,8 @@ recycle <- function(fun, args, path.res, path.digest = NULL,
     res_file_md5 <- tools::md5sum(path.res)
     digest.to.save <- rbind(
       digest.to.save,
-      data.table(name = ".results_file_md5", res = as.character(res_file_md5))
+      data.table(name = ".results_file_md5", res = as.character(res_file_md5)),
+      fill=TRUE
     )
     
     # Save digests
