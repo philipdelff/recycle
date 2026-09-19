@@ -109,3 +109,6 @@ fix check() note:
 revise readme and vignette with respect to recent improvements. I wrote an example with NMsim and recycle in devel/NMsim_recycle.R - please use the syntax I am using. If this is not covered in vignette, please do.
 
 I want the NMsim example in the vignette
+
+
+For a function, pkg::fun, in package pkg that takes arguments a, b, c, ..., I want to add an argument called recycle. If recycle=TRUE, I want to use the recycle package internally. How can I pass on all the arguments that pkg::fun was called with and pass them to recycle within fun?

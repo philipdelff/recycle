@@ -13,7 +13,7 @@
 ##' @import data.table
 ##' @importFrom tools md5sum
 ##' @keywords internal
-check_need_run <- function(args, path.res, path.digest, funs.unwrap, force, quiet = FALSE) {
+check_need_run <- function(args, path.res, path.digest, funs.unwrap, force = FALSE, quiet = FALSE) {
   
   # If force=TRUE, always run
   if (force) {
