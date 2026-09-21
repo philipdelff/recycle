@@ -17,9 +17,10 @@
 
 check_need_run <- function(args, path.res, path.digest, funs.unwrap, digests, force = FALSE, quiet = FALSE) {
 
+  
   if(missing(digests)){
   # Calculate new digests
-    digest.new <- digest_list(args, funs.unwrap)
+    digest.new <- digest_list(list=args, funs.unwrap)
   } else {
     digest.new <- digests
   }

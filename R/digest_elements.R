@@ -20,7 +20,7 @@ digest_list <- function(list, funs.unwrap = NULL) {
         if (is.null(list[[na]])) {
           list[[na]] <- NULL
         } else {
-          list[[na]] <- funs.unwrap[[na]](list[[na]])
+          list[[na]] <- funs.unwrap[[na]](list[[na]] )
         }
       }
     }
