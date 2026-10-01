@@ -65,8 +65,6 @@ check_need_run <- function(args, path.res, path.digest, funs.unwrap, digests, fo
   
   # Load old digests
   digest.old <- readRDS(path.digest)
-  ##:ess-bp-start::browser@nil:##
-browser(expr=is.null(.ESSBP.[["@22@"]]));##:ess-bp-end:##
   
   # Compare digests
   digest.all <- merge(digest.new, digest.old, by = "name", 
