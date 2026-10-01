@@ -17,6 +17,11 @@
 
 check_need_run <- function(args, path.res, path.digest, funs.unwrap, digests, force = FALSE, quiet = FALSE) {
 
+  #### Section start: Dummy variables, only not to get NOTE's in package checks ####
+  res.new <- NULL
+  res.old <- NULL
+  name <- NULL
+  #### Section end: Dummy variables, only not to get NOTE's in package checks ####
   
   if(missing(digests)){
   # Calculate new digests
@@ -60,15 +65,14 @@ check_need_run <- function(args, path.res, path.digest, funs.unwrap, digests, fo
   
   # Load old digests
   digest.old <- readRDS(path.digest)
+  ##:ess-bp-start::browser@nil:##
+browser(expr=is.null(.ESSBP.[["@22@"]]));##:ess-bp-end:##
   
   # Compare digests
-  res.new <- NULL
-  res.old <- NULL
-  name <- NULL
-  V1 <- NULL
-  
   digest.all <- merge(digest.new, digest.old, by = "name", 
                       suffixes = c(".new", ".old"), all = TRUE)
+
+    run <- FALSE
   
   # Check if any digests differ
   if (any(is.na(digest.all$res.new)) || 
@@ -98,9 +102,9 @@ check_need_run <- function(args, path.res, path.digest, funs.unwrap, digests, fo
       }
     }
     
-    return(list(run = TRUE, digest.new = digest.new, digest.all = digest.all))
+    run <- TRUE
   }
   
   # No changes detected
-  return(list(run = FALSE, digest.new = digest.new, digest.all = digest.all))
+  return(list(run = run, digest.new = digest.new, digest.all = digest.all))
 }
