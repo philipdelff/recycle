@@ -101,9 +101,6 @@ recycle <- function(fun, args, path.res, path.digest = NULL,
     dir.create(dir.digest, recursive = TRUE)
   }
   
-  # Process args.unwrap to convert "function" keyword and build unwrap functions
-  # Also auto-detect function arguments and apply "function" unwrapping by default
-  funs.unwrap <- process_args_unwrap(args.unwrap, args)
   
   # Check if we need to run
   need_run <- check_need_run(args, path.res, path.digest, funs.unwrap, force, quiet)
