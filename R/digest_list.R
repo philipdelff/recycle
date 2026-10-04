@@ -17,7 +17,7 @@ digest_list <- function(list, args.unwrap = NULL, path.results) {
   # Process args.unwrap to convert "function" keyword and build unwrap functions
   # Also auto-detect function arguments and apply "function" unwrapping by default
   
-  funs.unwrap <- process_args_unwrap(args.unwrap, args)
+  funs.unwrap <- process_args_unwrap(args.unwrap, list)
   
   # Apply unwrap functions if provided
   if (!is.null(funs.unwrap)) {

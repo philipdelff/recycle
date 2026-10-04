@@ -15,22 +15,28 @@
 ##' @importFrom tools md5sum
 ##' @keywords internal
 
-check_need_run <- function(args, path.results=NULL, path.digest, args.unwrap, digests, force = FALSE, quiet = FALSE) {
+check_need_run <- function(args, path.results=NULL, path.digests, args.unwrap, digests, digests.old, force = FALSE, quiet = FALSE) {
 
   #### Section start: Dummy variables, only not to get NOTE's in package checks ####
   res.new <- NULL
-  res.old <- NULL
   name <- NULL
   #### Section end: Dummy variables, only not to get NOTE's in package checks ####
 
   
   if(missing(digests)){
     # Calculate new digests
-    digest.new <- digest_list(list=args, args.unwrap,path.results=path.results)
+    digests.new <- digest_list(list=args, args.unwrap=args.unwrap,path.results=path.results)
   } else {
-    digest.new <- digests
+    digests.new <- digests
   }
 
+  if(missing(digests.old)) digests.old <- NULL
+
+  if(is.null(digests.old)){
+    # Load old digests
+    digests.old <- readRDS(path.digests)
+  }
+  
   ### this should be done a bit differently.
   ## goal: check old md5 against the md5 of the results on file.
 
@@ -41,12 +47,12 @@ check_need_run <- function(args, path.results=NULL, path.digest, args.unwrap, di
     if (!quiet) {
       message(sprintf("Running function: results file does not exist (%s)", path.results))
     }
-    return(list(run = TRUE, digest.new = digest.new, digest.all = NULL))
+    return(list(run = TRUE, digests.new = digests.new, digests.all = NULL))
   }
   
   # Add MD5 of results file to digests (for comparison with old)
   res_file_md5 <- tools::md5sum(path.results)
-  digest.new <- rbind(digest.new,
+  digests.new <- rbind(digests.new,
                       data.table(name="results",type="results",
                                  res=as.character(tools::md5sum(path.results))
                                  ))
@@ -57,39 +63,37 @@ check_need_run <- function(args, path.results=NULL, path.digest, args.unwrap, di
     if (!quiet) {
       message("Running function (force = TRUE)")
     }
-    return(list(run = TRUE, digest.new = digest.new, digest.all = NULL))
+    return(list(run = TRUE, digests.new = digests.new, digests.all = NULL))
   }
   
   
   # If digest file doesn't exist, must run
-  if (!file.exists(path.digest)) {
+  ## if (!file.exists(path.digest)) {
+  if (is.null(digests)) {
     if (!quiet) {
-      message(sprintf("Running function: digest file does not exist (%s)", path.digest))
+      message(sprintf("Running function: Reference digests unavailable."))
     }
-    return(list(run = TRUE, digest.new = digest.new, digest.all = NULL))
+    return(list(run = TRUE, digests.new = digests.new, digests.all = NULL))
   }
   
   
   
   
-
-  # Load old digests
-  digest.old <- readRDS(path.digest)
   
   # Compare digests
-  digest.all <- merge(digest.new, digest.old, by = "name", 
+  digests.all <- merge(digests.new, digests.old, by = "name", 
                       suffixes = c(".new", ".old"), all = TRUE)
   
   run <- FALSE
   
   # Check if any digests differ
-  if (any(is.na(digest.all$res.new)) || 
-        any(is.na(digest.all$res.old)) ||
-        !all(digest.all$res.new == digest.all$res.old)) {
+  if (any(is.na(digests.all$res.new)) || 
+        any(is.na(digests.all$res.old)) ||
+        !all(digests.all$res.new == digests.all$res.old)) {
     
     if (!quiet) {
       # Identify what changed
-      changed <- digest.all[is.na(res.new) | is.na(res.old) | res.new != res.old]
+      changed <- digests.all[is.na(res.new) | is.na(res.old) | res.new != res.old]
       
       if (nrow(changed) > 0) {
         change_msgs <- character(nrow(changed))

@@ -25,6 +25,8 @@ process_args_unwrap <- function(args.unwrap, args = NULL) {
   }
   
   funs.unwrap <- list()
+
+  
   
   # Auto-detect function arguments and add default "function" unwrapping
   if (!is.null(args)) {
@@ -34,7 +36,7 @@ process_args_unwrap <- function(args.unwrap, args = NULL) {
         if (is.null(args.unwrap) || is.null(args.unwrap[[arg_name]])) {
           funs.unwrap[[arg_name]] <- function(f) {
             if (is.function(f)) {
-              list(body(f), formals(f))
+              list(as.character(body(f)), formals(f))
             } else {
               f
             }
@@ -55,22 +57,7 @@ process_args_unwrap <- function(args.unwrap, args = NULL) {
     if (is.null(unwrap_spec)) {
       # Skip NULL entries
       next
-    } else if (is.character(unwrap_spec) && length(unwrap_spec) == 1) {
-      # Handle keyword strings
-      if (unwrap_spec == "function") {
-        # Unwrap function by extracting body and formals only
-        funs.unwrap[[arg_name]] <- function(f) {
-          if (is.function(f)) {
-            list(body(f), formals(f))
-          } else {
-            f
-          }
-        }
-      } else {
-        stop(sprintf("Unknown keyword '%s' in args.unwrap for argument '%s'. Valid keywords: 'function'",
-                     unwrap_spec, arg_name))
-      }
-    } else if (is.function(unwrap_spec)) {
+    }  else if (is.function(unwrap_spec)) {
       # Use the provided function directly
       funs.unwrap[[arg_name]] <- unwrap_spec
     } else {
