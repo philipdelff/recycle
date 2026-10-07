@@ -15,6 +15,9 @@
 ##' @importFrom tools md5sum
 ##' @keywords internal
 
+
+### todo: I want run and path.results in a data.table called summary.  
+
 check_need_run <- function(args, path.results=NULL, path.digests, args.unwrap, digests, digests.old, force = FALSE, quiet = FALSE) {
 
   #### Section start: Dummy variables, only not to get NOTE's in package checks ####
@@ -22,6 +25,7 @@ check_need_run <- function(args, path.results=NULL, path.digests, args.unwrap, d
   name <- NULL
   #### Section end: Dummy variables, only not to get NOTE's in package checks ####
 
+  list.summary <- data.table(path.results=path.results)
   
   if(missing(digests)){
     # Calculate new digests
@@ -34,7 +38,7 @@ check_need_run <- function(args, path.results=NULL, path.digests, args.unwrap, d
 
   if(is.null(digests.old)){
     # Load old digests
-    digests.old <- readRDS(path.digests)
+    if(file.exists(path.digests)) digests.old <- readRDS(path.digests)
   }
   
   ### this should be done a bit differently.
@@ -47,15 +51,18 @@ check_need_run <- function(args, path.results=NULL, path.digests, args.unwrap, d
     if (!quiet) {
       message(sprintf("Running function: results file does not exist (%s)", path.results))
     }
-    return(list(run = TRUE, digests.new = digests.new, digests.all = NULL))
+    list.summary[,run := TRUE]
+    return(list(summary=list.summary, digests.new = digests.new, digests.all = NULL))
   }
   
+
+
   # Add MD5 of results file to digests (for comparison with old)
-  res_file_md5 <- tools::md5sum(path.results)
-  digests.new <- rbind(digests.new,
-                      data.table(name="results",type="results",
-                                 res=as.character(tools::md5sum(path.results))
-                                 ))
+  ## res_file_md5 <- tools::md5sum(path.results)
+  ## digests.new <- rbind(digests.new,
+  ##                     data.table(name="results",type="results",
+  ##                                res=as.character(tools::md5sum(path.results))
+  ##                                ))
 
   
   # If force=TRUE, always run
@@ -63,7 +70,8 @@ check_need_run <- function(args, path.results=NULL, path.digests, args.unwrap, d
     if (!quiet) {
       message("Running function (force = TRUE)")
     }
-    return(list(run = TRUE, digests.new = digests.new, digests.all = NULL))
+    list.summary[,run := TRUE]
+    return(list(summary=list.summary, digests.new = digests.new, digests.all = NULL))
   }
   
   
@@ -73,16 +81,16 @@ check_need_run <- function(args, path.results=NULL, path.digests, args.unwrap, d
     if (!quiet) {
       message(sprintf("Running function: Reference digests unavailable."))
     }
-    return(list(run = TRUE, digests.new = digests.new, digests.all = NULL))
+    list.summary[,run := TRUE]
+    return(list(summary=list.summary, digests.new = digests.new, digests.all = NULL))
   }
-  
   
   
   
   
   # Compare digests
   digests.all <- merge(digests.new, digests.old, by = "name", 
-                      suffixes = c(".new", ".old"), all = TRUE)
+                       suffixes = c(".new", ".old"), all = TRUE)
   
   run <- FALSE
   
@@ -118,5 +126,6 @@ check_need_run <- function(args, path.results=NULL, path.digests, args.unwrap, d
   }
   
   # No changes detected
-  return(list(run = run, digest.new = digest.new, digest.all = digest.all))
+  list.summary[,run := run]
+  return(list(summary=list.summary, digests.new = digests.new, digests.all = digests.all))
 }
